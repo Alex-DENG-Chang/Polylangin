@@ -1,124 +1,128 @@
 # Polylangin
 
-> 一个本地、中英法混合输入的输入法：中文 / English / Français 混着打，不需要切换输入模式。
-> A local mixed-language input method for macOS & Linux (Chinese / English / French), no mode switching.
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-**状态：private preview · v0.16**　macOS 为主要平台；Linux（IBus）为实验版本。
+> A local mixed-language input method for macOS: Chinese / English / Français,
+> no mode switching.
 
-Polylangin 的核心不是"再造一个拼音引擎"，而是：
+**Status: private preview · v0.16 — macOS only.**
 
-- **自研 host-side composer**：按键先进原始缓冲区，由我们决定何时上屏、上屏什么；
-- **librime 只做转换器**：通过一个辅助 session 把拼音转成候选，不直接使用 Rime 的组字状态机；
-- **逐词语言判定**：每个新词根据拼音结构、英文/法文词表、光标前上下文自动决定语言；
-- **本地优先**：无网络、无遥测，日志只写本机。
+Polylangin is not another pinyin engine. It is a host-side composer built on top
+of a Squirrel fork, with librime used only as a converter:
 
-## 特性
+- **Host-side composer** — keys go into a raw buffer first; Polylangin decides
+  when and what to commit.
+- **librime as converter** — pinyin is sent through a private auxiliary session;
+  the shipped app does not expose Rime's own composition model.
+- **Per-word language detection** — each new token is classified from pinyin
+  structure, English/French word lists, and the text before the caret.
+- **Local first** — no network, no telemetry; the typing journal stays on disk.
 
-- 中文、英文、法文连续输入，无需 Shift 切换中/西
-- 逐词语言判定：完整拼音自动转中文；英文单词保持英文；法文在法语上下文保持法文
-- **多步候选选择**：选择只覆盖部分拼音的候选后，剩余拼音继续留在输入状态
-  （`woshizhendeniubi` → 选"我是真的" → 继续选 `niubi`）
-- 水平候选条，Apple 风格 `↓` 展开多行候选，支持数字、方向键、翻页
-- 自动纠错：英文/法文拼写、漏撇号、拼音对调/漏字，但**不碰合法词与全大写缩写**
-- 上下文标点：数字后英文标点；文字按"上一个句号之后"的中英文占比选择中/英文标点
-- 本地打字日志（JSONL，可选分析），用于数据驱动改进输入体验
-- macOS 使用 Squirrel fork（GPL-3）；Linux 使用 IBus + 同一套 Python 核心
+## Features
 
-## 架构
+- Chinese, English and French input without Shift mode switching
+- Per-word language detection: complete pinyin becomes Chinese; English words
+  stay English; French words stay French in a French context
+- **Multi-step candidate selection**: choosing a candidate that covers only part
+  of the pinyin keeps the rest active
+  (`woshizhendeniubi` → choose "我是真的" → continue with `niubi`)
+- Horizontal candidate bar with an expandable multi-row list; digits, arrow
+  keys and page keys all work
+- Conservative autocorrect: English/French spelling, missing apostrophes,
+  pinyin letter swaps/missing letters — valid words and all-caps acronyms are
+  never rewritten
+- Context-aware punctuation: ASCII after digits; Chinese vs English punctuation
+  based on the text since the last sentence terminator
+- Local JSONL typing journal for data-driven improvements
+- macOS frontend: Swift / InputMethodKit, based on a Squirrel 1.1.2 fork
+
+## Architecture
 
 ```text
-macOS:  InputMethodKit app (Swift, Squirrel 1.1.2 fork)
-          └─ host composer ──> librime 1.16 (aux session, converter only)
-                               └─ rime-ice data (bundled seed)
-
-Linux:  IBus engine (Python + PyGObject)
-          └─ polylangin_core (data / classification / composer / journal)
-               └─ C shim (ctypes) ──> system librime 1.10
-                                      └─ minimal plugin-free Rime schema
+InputMethodKit app (Swift, Squirrel 1.1.2 fork)
+  └─ host composer ──> librime 1.16 (auxiliary session, converter only)
+                        └─ bundled rime-ice seed data
 ```
 
-语言判定的简化流程：完整拼音 → 中文；英文词典词/前缀 → 英文；法语上下文中的
-法文词/变音 → 法文；混合 token（`feichangnormal`）按拼音前缀 + 英文后缀切分。
-判定结果同时决定是否补空格、是否触发纠错、是否显示中文候选。
+Language detection in brief: complete pinyin → Chinese; English dictionary
+word/prefix → English; French word or diacritics in a French context → French;
+mixed tokens (`feichangnormal`) are split into a pinyin prefix plus a Latin
+suffix. The classification result also decides trailing spaces, autocorrect and
+whether Chinese candidates should be shown.
 
-## 仓库结构
+## Repository layout
 
-| 路径 | 内容 |
+| Path | Contents |
 |---|---|
-| `vendor/squirrel-master/` | macOS 前端：Squirrel 1.1.2 fork（Swift/IMK） |
-| `vendor/librime-master/` | librime 源码（BSD-3-Clause），用于参考/构建 |
-| `vendor/rime-ice-main/` | 内置 Rime 数据（GPL-3.0） |
-| `resources/rime-seed/`、`resources/rime-seed-linux/` | Polylangin 的 Rime 配置种子 |
-| `linux/` | Linux IBus 引擎、Python 核心、安装与打包脚本 |
-| `tools/` | 构建、安装、日志分析脚本 |
-| `vendor/squirrel-master/sources/` | 含 Polylangin 的 composer / 候选窗 / 日志实现 |
+| `vendor/squirrel-master/` | macOS frontend: Squirrel 1.1.2 fork (Swift/IMK) |
+| `vendor/librime-master/` | librime sources (BSD-3-Clause), reference/build |
+| `vendor/rime-ice-main/` | Bundled Rime data (GPL-3.0) |
+| `resources/rime-seed/` | Polylangin Rime seed configuration |
+| `tools/` | Build, install, packaging and log-analysis scripts |
+| `vendor/squirrel-master/sources/` | Composer, candidate panel, journal |
 
-## macOS 构建
+## Build on macOS
 
-前置：
+Prerequisites:
 
-- macOS 14+，安装 Command Line Tools（`xcode-select --install`）
-- 建议先安装官方 Squirrel 1.1.2（构建脚本会复用它已部署的 `SharedSupport/` 与图标）
-- 可选：Apple Development 证书；不设置 `SIGN_ID` 时默认 ad-hoc 签名（仅本地自用）
+- macOS 14+ and Command Line Tools (`xcode-select --install`)
+- A stock Squirrel 1.1.2 installation is recommended; the build reuses its
+  deployed `SharedSupport/` and icon
+- Optional: an Apple Development signing identity; without `SIGN_ID` the app is
+  ad-hoc signed for local use only
 
 ```bash
-# 默认 ad-hoc 签名
+# Default: ad-hoc signing (local use)
 bash tools/build-polylangin.sh
 
-# 分发构建：设置自己的签名身份
+# Distribution build: use your own signing identity
 SIGN_ID="Apple Development: Your Name (TEAMID)" bash tools/build-polylangin.sh
 
-# 安装 + 选中输入源
+# Install and select the input source
 POLYLANGIN_APP="vendor/squirrel-master/build/app/Polylangin.app" \
   bash tools/install-and-select.sh
 ```
 
-产物：`vendor/squirrel-master/build/app/Polylangin.app`。
+Output: `vendor/squirrel-master/build/app/Polylangin.app`.
 
-## Linux 构建与安装（实验）
+## Privacy and logs
 
-要求：Debian/Ubuntu 系（已在 Zorin OS 测试）、GNOME + IBus、`librime-dev`、
-`build-essential`、`python3-gi`、`python3-ibus-1.0`。
+- **Offline and telemetry-free** — all classification happens locally.
+- A local JSONL journal is written by default:
+  `~/Desktop/Polylangin-logs/YYYY-MM-DD.jsonl`
+  (fallback: `~/Library/Logs/Polylangin`).
+- Entries include keystrokes, committed text, language, candidate rank, timing
+  and the active application id. **They may contain what you type.**
+  Secure-input fields are skipped.
+- Logs are never uploaded automatically. Do not commit logs or paste raw logs
+  into public issues without redaction.
+- Logging can be disabled in `PolylanginJournal.swift`.
 
-```bash
-bash linux/install.sh
-```
+## Development history
 
-安装脚本会把引擎装到 `~/.local/share/polylangin/`、编译 C shim、注册 IBus 组件
-并重启引擎。详见 [`linux/README-LINUX.md`](linux/README-LINUX.md)。
+- **Oct 2026** — Started the macOS input method. Pure Rime/Squirrel configuration
+  was not enough: the host key handling broke French accents on a Canadian CSA
+  layout, so the project forked Squirrel 1.1.2 and moved the composer into Swift.
+- **Oct 2026** — Raw buffer + explicit commit, per-word language detection,
+  candidate bar and raw-Enter escape hatch; then rime-ice data and an isolated
+  user data directory.
+- **Late Oct 2026** — Data-driven fixes from real local typing logs: autocorrect
+  harm, Enter behavior, candidate paging and context punctuation.
+- **Oct–Nov 2026** — Multi-step candidate selection (keep the remaining pinyin);
+  macOS experience is the current focus.
 
-## 隐私与日志
+## Acknowledgements
 
-- **不联网、无遥测**；所有判定都在本机完成。
-- 默认写本地 JSONL 日志：macOS 为 `~/Desktop/Polylangin-logs/YYYY-MM-DD.jsonl`，
-  Linux 为 `~/.local/share/polylangin/logs/`。
-- 日志包含按键、上屏文本、语言、候选序号、耗时、应用 id 等，**可能包含你输入的内容**；
-  密码框（secure input）不记录。
-- 日志不会自动上传；请不要把日志目录提交到仓库。公开 issue 前先脱敏。
-- 日志目录/开关可在源码中关闭（见 `PolylanginJournal.swift` 与 `polylangin_core/journal.py`）。
+- [Squirrel](https://github.com/rime/squirrel) (GPL-3.0) — macOS frontend base
+- [librime](https://github.com/rime/librime) (BSD-3-Clause) — conversion engine
+- [rime-ice / 雾凇拼音](https://github.com/iDvel/rime-ice) (GPL-3.0) — Chinese
+  dictionary and schema data
+- FrequencyWords, google-10000-english and related public word-frequency lists —
+  English/French word lists
+- Apple InputMethodKit / NaturalLanguage — system frameworks, not redistributed
 
-## 开发历程
-
-- **2026-10**：开始做 macOS 混合输入法。先尝试纯 Rime + Squirrel 配置方案，
-  发现宿主层按键处理会破坏加拿大 CSA 布局的法语重音，于是 fork Squirrel 1.1.2，
-  把 composer 移到 Swift 宿主层。
-- **2026-10**：完成 raw buffer + 显式上屏、逐词语言判定、候选条、Enter 兜底；
-  随后接入 rime-ice 数据与独立用户目录。
-- **2026-10 末**：用两周本地打字日志做数据驱动修复：自动纠错误伤、
-  英文后 Enter、候选翻页、上下文标点等。
-- **2026-10 / 11**：加入多步候选选择（选一部分后保留剩余拼音）；
-  Linux IBus 版本完成第一版并跑通；当前重点是把 macOS 体验做稳。
-
-## 致谢与三方组件
-
-- [Squirrel](https://github.com/rime/squirrel)（GPL-3.0）——macOS 前端底座
-- [librime](https://github.com/rime/librime)（BSD-3-Clause）——转换引擎
-- [rime-ice / 雾凇拼音](https://github.com/iDvel/rime-ice)（GPL-3.0）——中文词典与配置
-- FrequencyWords、google-10000-english 等公开词频表——英/法词表来源
-- Apple InputMethodKit / NaturalLanguage（系统框架，不随本项目分发）
-
-完整许可证见 [`LICENSE`](LICENSE) 与 [`NOTICE`](NOTICE)。本项目与 Rime、Squirrel、
-Apple 官方无关。
+See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE) for details. This project is not
+affiliated with Rime, Squirrel or Apple.
 
 ## License
 
