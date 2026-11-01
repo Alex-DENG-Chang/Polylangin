@@ -5,7 +5,11 @@
 > A local mixed-language input method for macOS: Chinese / English / Français,
 > no mode switching.
 
-**Status: private preview · v0.16 — macOS only.**
+**Status: v0.16 · macOS only · personal hobby project.**
+
+> **A personal hobby project.** Polylangin is built by one developer in their
+> spare time and is currently my daily driver input method on macOS. It is not a
+> company product, and there is no support guarantee.
 
 Polylangin is not another pinyin engine. It is a host-side composer built on top
 of a Squirrel fork, with librime used only as a converter:
@@ -23,11 +27,6 @@ of a Squirrel fork, with librime used only as a converter:
 - Chinese, English and French input without Shift mode switching
 - Per-word language detection: complete pinyin becomes Chinese; English words
   stay English; French words stay French in a French context
-- **Multi-step candidate selection**: choosing a candidate that covers only part
-  of the pinyin keeps the rest active
-  (`woshizhendeniubi` → choose "我是真的" → continue with `niubi`)
-- Horizontal candidate bar with an expandable multi-row list; digits, arrow
-  keys and page keys all work
 - Conservative autocorrect: English/French spelling, missing apostrophes,
   pinyin letter swaps/missing letters — valid words and all-caps acronyms are
   never rewritten
@@ -52,14 +51,21 @@ whether Chinese candidates should be shown.
 
 ## Repository layout
 
-| Path | Contents |
-|---|---|
-| `vendor/squirrel-master/` | macOS frontend: Squirrel 1.1.2 fork (Swift/IMK) |
-| `vendor/librime-master/` | librime sources (BSD-3-Clause), reference/build |
-| `vendor/rime-ice-main/` | Bundled Rime data (GPL-3.0) |
-| `resources/rime-seed/` | Polylangin Rime seed configuration |
-| `tools/` | Build, install, packaging and log-analysis scripts |
-| `vendor/squirrel-master/sources/` | Composer, candidate panel, journal |
+| Path                              | Contents                                           |
+| --------------------------------- | -------------------------------------------------- |
+| `vendor/squirrel-master/`         | macOS frontend: Squirrel 1.1.2 fork (Swift/IMK)    |
+| `vendor/librime-master/`          | librime sources (BSD-3-Clause), reference/build    |
+| `vendor/rime-ice-main/`           | Bundled Rime data (GPL-3.0)                        |
+| `resources/rime-seed/`            | Polylangin Rime seed configuration                 |
+| `tools/`                          | Build, install, packaging and log-analysis scripts |
+| `vendor/squirrel-master/sources/` | Composer, candidate panel, journal                 |
+
+## Keyboard layout
+
+The author uses the **Canadian CSA** layout. Dead keys, accents and some
+punctuation may behave differently on other layouts. Please test carefully before
+using it as a daily driver, and report layout-specific issues with your exact
+layout name.
 
 ## Build on macOS
 
@@ -110,6 +116,13 @@ Output: `vendor/squirrel-master/build/app/Polylangin.app`.
   harm, Enter behavior, candidate paging and context punctuation.
 - **Oct–Nov 2026** — Multi-step candidate selection (keep the remaining pinyin);
   macOS experience is the current focus.
+
+## Other languages and forks
+
+The current scope is Chinese / English / French. If you need Russian, Arabic or
+another script, the code is intentionally small — feel free to fork and modify
+it. Pull requests and discussions about additional languages or layouts are
+welcome.
 
 ## Acknowledgements
 

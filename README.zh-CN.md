@@ -5,7 +5,10 @@
 > 一个本地、中英法混合输入的 macOS 输入法：中文 / English / Français 混着打，
 > 不需要切换输入模式。
 
-**状态：private preview · v0.16 — 目前仅支持 macOS。**
+**状态：v0.16 · 目前仅支持 macOS · 个人业余项目。**
+
+> **个人业余项目**：Polylangin 由个人在业余时间开发，目前是我的主力输入法。
+> 不是公司产品，没有官方支持承诺；问题和建议欢迎提，但回复可能较慢。
 
 Polylangin 的核心不是"再造一个拼音引擎"，而是一层宿主侧 composer：
 
@@ -18,9 +21,6 @@ Polylangin 的核心不是"再造一个拼音引擎"，而是一层宿主侧 com
 
 - 中文、英文、法文连续输入，无需 Shift 切换中/西
 - 逐词语言判定：完整拼音自动转中文；英文单词保持英文；法文在法语上下文保持法文
-- **多步候选选择**：选择只覆盖部分拼音的候选后，剩余拼音继续留在输入状态
-  （`woshizhendeniubi` → 选“我是真的” → 继续选 `niubi`）
-- 水平候选条，可展开多行候选；支持数字、方向键、翻页
 - 保守的自动纠错：英文/法文拼写、漏撇号、拼音对调/漏字；**不碰合法词与全大写缩写**
 - 上下文标点：数字后英文标点；文字按“上一个句号之后”的中英文占比选择中/英文标点
 - 本地 JSONL 打字日志，用于数据驱动改进
@@ -40,14 +40,19 @@ InputMethodKit app (Swift, Squirrel 1.1.2 fork)
 
 ## 仓库结构
 
-| 路径 | 内容 |
-|---|---|
-| `vendor/squirrel-master/` | macOS 前端：Squirrel 1.1.2 fork（Swift/IMK） |
-| `vendor/librime-master/` | librime 源码（BSD-3-Clause），参考/构建 |
-| `vendor/rime-ice-main/` | 内置 Rime 数据（GPL-3.0） |
-| `resources/rime-seed/` | Polylangin 的 Rime 配置种子 |
-| `tools/` | 构建、安装、打包与日志分析脚本 |
-| `vendor/squirrel-master/sources/` | composer、候选窗、日志实现 |
+| 路径                                | 内容                                      |
+| --------------------------------- | --------------------------------------- |
+| `vendor/squirrel-master/`         | macOS 前端：Squirrel 1.1.2 fork（Swift/IMK） |
+| `vendor/librime-master/`          | librime 源码（BSD-3-Clause），参考/构建          |
+| `vendor/rime-ice-main/`           | 内置 Rime 数据（GPL-3.0）                     |
+| `resources/rime-seed/`            | Polylangin 的 Rime 配置种子                  |
+| `tools/`                          | 构建、安装、打包与日志分析脚本                         |
+| `vendor/squirrel-master/sources/` | composer、候选窗、日志实现                       |
+
+## 键盘布局说明
+
+作者使用 **Canadian CSA** 布局。其他布局下的死键、重音和部分标点行为可能不同；
+作为主力输入法使用前请先自行测试，反馈时请附上具体布局名。
 
 ## macOS 构建
 
@@ -92,6 +97,11 @@ POLYLANGIN_APP="vendor/squirrel-master/build/app/Polylangin.app" \
   候选翻页、上下文标点等。
 - **2026-10 / 11**：加入多步候选选择（选一部分后保留剩余拼音）；当前重点是把
   macOS 体验做稳。
+
+## 其他语言与魔改
+
+目前只覆盖中文 / 英文 / 法文。如果确实需要俄语、阿拉伯语等其他文字，代码量不大，
+欢迎直接 fork 后自行修改；也欢迎提 PR 或开 discussion 讨论。
 
 ## 致谢与三方组件
 
