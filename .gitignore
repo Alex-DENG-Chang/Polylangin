@@ -1,0 +1,40 @@
+# --- secrets / local credentials ---
+.env
+.env.*
+*.pem
+*.p12
+*.key
+*.cer
+*.mobileprovision
+.DS_Store
+
+# --- build outputs ---
+vendor/squirrel-master/build/
+vendor/**/build/
+build/
+dist/
+*.app/
+*.dmg
+*.zip
+
+# --- runtime logs / user data ---
+*.log
+*.jsonl
+Polylangin-logs/
+logs/
+tmp/
+*.tmp
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- reports / local analysis output ---
+reports/
+*.pdf
+*.docx
+
+# --- local backups ---
+vendor/backup/

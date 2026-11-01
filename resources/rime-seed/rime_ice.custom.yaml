@@ -1,0 +1,13 @@
+patch:
+  # 模糊拼音：只开前后鼻音（g 结尾的后鼻音），其余不开
+  speller/algebra/+:
+    - derive/ang$/an/
+    - derive/an$/ang/
+    - derive/eng$/en/
+    - derive/en$/eng/
+    - derive/ing$/in/
+    - derive/in$/ing/
+    - derive/iang$/ian/
+    - derive/ian$/iang/
+    - derive/uang$/uan/
+    - derive/uan$/uang/

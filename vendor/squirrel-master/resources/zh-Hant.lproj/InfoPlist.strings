@@ -1,0 +1,6 @@
+"CFBundleDisplayName" = "Polylangin v@VERSION@";
+"CFBundleName" = "Polylangin v@VERSION@";
+"app.polylangin.inputmethod.Polylangin" = "Polylangin v@VERSION@";
+"app.polylangin.inputmethod.Polylangin.Hans" = "Polylangin v@VERSION@";
+"app.polylangin.inputmethod.Polylangin.Hant" = "Polylangin v@VERSION@";
+"NSHumanReadableCopyright" = "Polylangin @VERSION@（基於 Squirrel/Rime，GPL-3.0）";

@@ -1,0 +1,35 @@
+Polylangin third-party notices
+==============================
+
+This repository contains or depends on the following third-party components.
+Their licenses apply to their respective files; the rest of Polylangin is
+licensed under GPL-3.0 (see LICENSE).
+
+1. Squirrel (macOS frontend base)
+   - Path: vendor/squirrel-master/
+   - License: GNU GPL v3 (vendor/squirrel-master/LICENSE.txt)
+   - Polylangin modifications: host-side composer, candidate grid panel,
+     language detection, journaling, build/packaging scripts.
+
+2. librime
+   - Path: vendor/librime-master/ and prebuilt libs under vendor/squirrel-master/lib/
+   - License: BSD-3-Clause (vendor/librime-master/LICENSE)
+   - Used as the conversion engine through a private auxiliary Rime session.
+
+3. rime-ice / 雾凇拼音
+   - Path: vendor/rime-ice-main/
+   - License: GNU GPL v3 (vendor/rime-ice-main/LICENSE)
+   - Bundled Chinese dictionary/schema data and seed configuration.
+
+4. Frequency word lists
+   - Path: vendor/squirrel-master/resources/polylangin/
+   - english_words.txt / english_common.txt / french_words.txt are derived from
+     publicly available frequency lists (FrequencyWords,
+     google-10000-english, and related open data). Verify upstream licenses
+     before redistributing a release build; keep attribution in release notes.
+
+5. Apple frameworks
+   - InputMethodKit, AppKit, NaturalLanguage, Carbon are system frameworks
+     provided by macOS and are not redistributed here.
+
+If you believe a file is missing attribution, please open an issue.

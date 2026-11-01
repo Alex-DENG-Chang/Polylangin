@@ -1,0 +1,9 @@
+# Polylangin Linux: minimal Rime configuration.
+# The host-side engine handles English/French; Rime only converts pinyin to Chinese.
+config_version: "0.1"
+
+schema_list:
+  - schema: polylangin
+
+menu:
+  page_size: 9
