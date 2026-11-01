@@ -12,6 +12,24 @@ SIGN_ID="${SIGN_ID:--}"
 VERSION="$(cat "$ROOT/VERSION" 2>/dev/null || echo 0.0)"
 STOCK="/Library/Input Methods/Squirrel.app/Contents"
 
+# The public source snapshot does not ship prebuilt librime binaries. When the
+# local vendor directories are absent (fresh clone), reuse the official Squirrel
+# installation for librime, its plugins and helper binaries.
+LIB_DIR="$SRC/lib"
+FRAMEWORKS_DIR="$SRC/Frameworks"
+BIN_DIR="$SRC/bin"
+if [ ! -f "$LIB_DIR/librime.1.dylib" ]; then
+  if [ -f "$STOCK/Frameworks/librime.1.dylib" ]; then
+    LIB_DIR="$STOCK/Frameworks"
+    FRAMEWORKS_DIR="$STOCK/Frameworks"
+    BIN_DIR="$STOCK/MacOS"
+    echo "== using librime from stock Squirrel =="
+  else
+    echo "missing librime: install official Squirrel 1.1.2 or vendor the prebuilt libs" >&2
+    exit 1
+  fi
+fi
+
 if [ ! -d "$SRC/sources" ]; then
   echo "missing fork source: $SRC" >&2
   exit 1
@@ -27,20 +45,24 @@ export TMPDIR="$SRC/build/tmp"
 xcrun swiftc -O -swift-version 5 -enable-bare-slash-regex \
   -target arm64-apple-macos14.0 -module-name Squirrel \
   -import-objc-header "$SRC/sources/Squirrel-Bridging-Header.h" \
-  -I "$SRC/librime/src" -I "$SRC/librime/include" -F "$SRC/Frameworks" \
+  -I "$SRC/librime/src" -I "$SRC/librime/include" -F "$FRAMEWORKS_DIR" \
   -framework AppKit -framework InputMethodKit -framework Carbon -framework UserNotifications \
   -framework NaturalLanguage \
-  -L "$SRC/lib" -lrime.1 -Xlinker -rpath -Xlinker @executable_path/../Frameworks \
+  -L "$LIB_DIR" -lrime.1 -Xlinker -rpath -Xlinker @executable_path/../Frameworks \
   -module-cache-path "$SRC/build/modulecache" \
   -Xcc -fmodules-cache-path="$SRC/build/modulecache" \
   "$SRC"/sources/*.swift -o "$APP/Contents/MacOS/Polylangin"
 
 echo "== helper binaries =="
-cp -f "$SRC/bin/rime_deployer" "$SRC/bin/rime_dict_manager" "$APP/Contents/MacOS/"
+cp -f "$BIN_DIR/rime_deployer" "$BIN_DIR/rime_dict_manager" "$APP/Contents/MacOS/"
 
 echo "== frameworks =="
-cp -f "$SRC/lib/librime.1.dylib" "$APP/Contents/Frameworks/"
-cp -f "$SRC/lib/rime-plugins/"*.dylib "$APP/Contents/Frameworks/rime-plugins/"
+cp -f "$LIB_DIR/librime.1.dylib" "$APP/Contents/Frameworks/"
+if [ -d "$LIB_DIR/rime-plugins" ]; then
+  cp -f "$LIB_DIR/rime-plugins/"*.dylib "$APP/Contents/Frameworks/rime-plugins/"
+else
+  cp -f "$FRAMEWORKS_DIR/rime-plugins/"*.dylib "$APP/Contents/Frameworks/rime-plugins/"
+fi
 
 echo "== resources =="
 cp -f "$SRC/resources/rime.pdf" "$APP/Contents/Resources/" 2>/dev/null || true

@@ -7,6 +7,8 @@
 
 **Status: v0.16 · macOS only · personal hobby project.**
 
+Download the latest macOS build from [Releases](https://github.com/Alex-DENG-Chang/Polylangin/releases).
+
 > **A personal hobby project.** Polylangin is built by one developer in their
 > spare time and is currently my daily driver input method on macOS. It is not a
 > company product, and there is no support guarantee.

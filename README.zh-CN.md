@@ -7,6 +7,8 @@
 
 **状态：v0.16 · 目前仅支持 macOS · 个人业余项目。**
 
+最新 macOS 安装包见 [Releases](https://github.com/Alex-DENG-Chang/Polylangin/releases)。
+
 > **个人业余项目**：Polylangin 由个人在业余时间开发，目前是我的主力输入法。
 > 不是公司产品，没有官方支持承诺；问题和建议欢迎提，但回复可能较慢。
 
